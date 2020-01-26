@@ -17,26 +17,55 @@ def drawVertex(pos,screen):
     pygame.draw.circle(screen,(255,255,255),pos,3)
 
 def draw():
+    global theta
     screen.fill((0,0,0))
+    redefRotMats(theta)
     projectedPoints = []
     for vertex in cube:
-        projected = n.dot(projection,vertex)
+        rotated = n.dot(rotationZ,vertex)
+        rotated = n.dot(rotationX,rotated)
+        rotated = n.dot(rotationY,rotated)
+        projected = n.dot(projection,rotated)
         projectedPoints.append(projected)
         drawVertex(projected,screen)
 
 
 def main():
+    global theta
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            draw()
-            pygame.display.flip()
-            pygame.time.wait(10)
+        draw()
+        theta += 0.01
+        pygame.display.flip()
+        pygame.time.wait(10)
 pygame.init()
 display = (800,800)
 screen = pygame.display.set_mode(display)
+
+theta = 0
+
+def redefRotMats(theta):
+    global rotationX,rotationY,rotationZ
+    rotationX = (
+        (1, 0, 0),
+        (0, n.cos(theta), -n.sin(theta)),
+        (0, n.sin(theta), n.cos(theta)),
+    )
+
+    rotationY = (
+        (n.cos(theta), 0, -n.sin(theta)),
+        (0, 1, 0),
+        (n.sin(theta), 0, n.cos(theta))
+    )
+
+    rotationZ = ( 
+        (n.cos(theta), -n.sin(theta), 0),
+        (n.sin(theta), n.cos(theta), 0),
+        (0, 0, 1)
+    )
 
 cube = generate_square(3)
 main()
